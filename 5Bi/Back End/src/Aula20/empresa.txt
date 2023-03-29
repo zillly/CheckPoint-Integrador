@@ -1,0 +1,1 @@
+[Empresa{cnpj=1201, razãoSocial='?', funcionarios=[Funcionario{nome='gilmar', sobrenome='Miranda', rg=12, salario=100.0}, Funcionario{nome='gilmar2', sobrenome='Miranda2', rg=12, salario=150.0}, Funcionario{nome='gilmar3', sobrenome='Miranda3', rg=12, salario=160.0}, Funcionario{nome='gilmar5', sobrenome='Miranda4', rg=12, salario=170.0}]}]
