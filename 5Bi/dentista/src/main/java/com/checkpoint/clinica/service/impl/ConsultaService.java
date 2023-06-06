@@ -1,19 +1,26 @@
 package com.checkpoint.clinica.service.impl;
 
+import com.checkpoint.clinica.controller.dto.ConsultaResponse;
 import com.checkpoint.clinica.model.Consulta;
 import com.checkpoint.clinica.repository.IRepositoryConsulta;
-import com.checkpoint.clinica.service.IService;
+import com.checkpoint.clinica.service.IConsultaService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 
-public class ConsultaService implements IService<Consulta> {
+public class ConsultaService implements IConsultaService {
 
     private IRepositoryConsulta repository;
+
+    ObjectMapper mapper = new ObjectMapper();
+    final static Logger log = Logger.getLogger(ConsultaService.class);
 
     @Autowired
     public ConsultaService(IRepositoryConsulta repository) {
@@ -21,14 +28,24 @@ public class ConsultaService implements IService<Consulta> {
     }
 
     @Override
-    public Consulta salvar(Consulta consulta) {
-        return repository.save(consulta);
+    public ConsultaResponse salvar(Consulta consulta) {
+        log.debug("Registrando novo consulta: " + consulta.toString());
+        mapper.registerModule(new JavaTimeModule());
+        Consulta salvo = repository.save(consulta);
+        ConsultaResponse consultaResponse = mapper.convertValue(salvo , ConsultaResponse.class);
+        return consultaResponse;
 
     }
 
     @Override
-    public List<Consulta> buscarTodos() {
-        return repository.findAll();
+    public List<ConsultaResponse> buscarTodos() {
+        log.debug("Buscando Todos");
+        List<Consulta> consultas = repository.findAll();
+        List<ConsultaResponse> response = new ArrayList<>();
+        for (Consulta consulta : consultas){
+            response.add(mapper.convertValue(consulta, ConsultaResponse.class));
+        }
+        return response;
     }
 
     @Override
@@ -37,17 +54,28 @@ public class ConsultaService implements IService<Consulta> {
     }
 
     @Override
-    public Optional<Consulta> buscarPorId(int id) {
-        return repository.findById(id);
+    public ConsultaResponse buscarPorId(int id) {
+        log.debug("Buscando Por ID");
+        Consulta consulta = repository.findConsultaById(id);
+        ConsultaResponse consultaMapper = mapper.convertValue(consulta , ConsultaResponse.class);
+        return consultaMapper;
     }
 
     @Override
-    public Consulta atualizar(Consulta consulta) {
-        return repository.save(consulta);
+    public ConsultaResponse atualizar(Consulta consulta) {
+        log.debug("Atualizar consulta: " + consulta.toString());
+        Consulta salvo = repository.save(consulta);
+        ConsultaResponse consultaResponse = mapper.convertValue(salvo , ConsultaResponse.class);
+        return consultaResponse;
     }
 
     @Override
-    public Optional<Consulta> buscarPorNome(String nome) {
-        return Optional.empty();
+    public ConsultaResponse buscarPorNome(String nome) {
+        log.debug("Buscando Por Nome");
+        Consulta consulta = repository.findConsultaByPacienteNomeContainingIgnoreCase(nome);
+        ConsultaResponse consultaMapper = mapper.convertValue(consulta , ConsultaResponse.class);
+        return consultaMapper;
     }
+
+
 }

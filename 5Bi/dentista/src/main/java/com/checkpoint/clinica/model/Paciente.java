@@ -6,14 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tb_paciente")
 public class Paciente {
 
     @Id
@@ -22,13 +21,8 @@ public class Paciente {
     private String nome;
     private String sobrenome;
     private String rg;
-    private String dataCadastro;
-    @OneToOne(mappedBy = "paciente", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    private Endereco enderecos;
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "consulta_id")
-    private Consulta consulta;
-
-
+    private LocalDate dataCadastro = LocalDate.now();
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Endereco endereco;
 
 }

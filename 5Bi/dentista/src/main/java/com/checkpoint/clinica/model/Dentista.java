@@ -23,7 +23,7 @@ public class Dentista {
     private String nome;
     private String sobrenome;
     private int matricularCadastro;
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "consulta_id")
     private Consulta consulta;
 

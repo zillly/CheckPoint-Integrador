@@ -1,21 +1,26 @@
 package com.checkpoint.clinica.service.impl;
 
+import com.checkpoint.clinica.controller.dto.EnderecoResponse;
 import com.checkpoint.clinica.model.Endereco;
 import com.checkpoint.clinica.repository.IRepositoryEndereco;
-import com.checkpoint.clinica.service.IService;
+import com.checkpoint.clinica.service.IEnderecoService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 
-public class EnderecoService implements IService<Endereco> {
+public class EnderecoService implements IEnderecoService {
 
 
     private IRepositoryEndereco repository;
+
+    ObjectMapper mapper = new ObjectMapper();
+
     final static Logger log = Logger.getLogger(EnderecoService.class);
 
     @Autowired
@@ -24,13 +29,24 @@ public class EnderecoService implements IService<Endereco> {
     }
 
     @Override
-    public Endereco salvar(Endereco endereco) {
-        return repository.save(endereco);
+    public EnderecoResponse salvar(Endereco endereco) {
+        log.debug("Registrando endereco : " + endereco.toString());
+        ObjectMapper mapper = new ObjectMapper();
+        Endereco enderecoSalvo = repository.save(endereco);
+        EnderecoResponse enderecoResponse = mapper.convertValue(enderecoSalvo , EnderecoResponse.class);
+        return enderecoResponse;
+
     }
 
     @Override
-    public List<Endereco> buscarTodos() {
-        return repository.findAll();
+    public List<EnderecoResponse> buscarTodos() {
+        log.debug("Buscar Todos");
+        List<Endereco> enderecos = repository.findAll();
+        List<EnderecoResponse> response = new ArrayList<>();
+        for (Endereco endereco : enderecos){
+            response.add(mapper.convertValue(endereco, EnderecoResponse.class));
+        }
+        return response;
     }
 
     @Override
@@ -39,17 +55,20 @@ public class EnderecoService implements IService<Endereco> {
     }
 
     @Override
-    public Optional<Endereco> buscarPorId(int id) {
-        return repository.findById(id);
+    public EnderecoResponse buscarPorId(int id) {
+        log.debug("Buscar Por ID");
+        Endereco endereco = repository.findEnderecoById(id);
+        EnderecoResponse enderecoResponse = mapper.convertValue(endereco , EnderecoResponse.class);
+        return enderecoResponse;
     }
 
     @Override
-    public Endereco atualizar(Endereco endereco) {
-        return repository.save(endereco);
+    public EnderecoResponse atualizar(Endereco endereco) {
+        log.debug("Atualizar : " + endereco.toString());
+        Endereco enderecoSalvo = repository.save(endereco);
+        EnderecoResponse enderecoResponse = mapper.convertValue(enderecoSalvo , EnderecoResponse.class);
+        return enderecoResponse;
     }
 
-    @Override
-    public Optional<Endereco> buscarPorNome(String nome) {
-        return Optional.empty();
-    }
+
 }

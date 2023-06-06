@@ -1,15 +1,22 @@
 package com.checkpoint.clinica.controller;
 
+import com.checkpoint.clinica.controller.dto.ConsultaResponse;
+import com.checkpoint.clinica.controller.dto.DentistaResponse;
+import com.checkpoint.clinica.exeption.ResourceNotFoundException;
 import com.checkpoint.clinica.model.Consulta;
+import com.checkpoint.clinica.model.Usuario;
 import com.checkpoint.clinica.service.impl.ConsultaService;
 import com.checkpoint.clinica.service.impl.DentistaService;
 import com.checkpoint.clinica.service.impl.PacienteService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/consultas")
@@ -21,56 +28,65 @@ public class ConsultaController {
     @Autowired
       private PacienteService pacienteService;
 
+
+    @Operation(summary = "Procurar pelo id da consulta")
     @GetMapping("/{id}")
-    public ResponseEntity<Consulta> buscarId (@PathVariable Integer id){
-        ResponseEntity<Consulta> response;
-        if (consultaService.buscarPorId(id).isPresent()){
+    public ResponseEntity<ConsultaResponse> buscarId (@PathVariable Integer id){
+        ResponseEntity<ConsultaResponse> response;
+        if (Objects.nonNull(consultaService.buscarPorId(id))){
             response = new ResponseEntity(consultaService.buscarPorId(id),HttpStatus.OK);
         }else {
             response = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         return response;
     }
-
+    @Operation(summary = "Cadastrar uma nova consulta")
     @PostMapping
-    public ResponseEntity<Consulta> cadastro(@RequestBody Consulta consulta){
-         ResponseEntity<Consulta> response;
-         if(pacienteService.buscarPorId(consulta.getPaciente().getId()).isPresent()
-         && dentistaService.buscarPorId(consulta.getDentista().getId()).isPresent()){
-             response = ResponseEntity.ok(consultaService.salvar(consulta));
+    public ResponseEntity<ConsultaResponse> cadastro(@RequestBody Consulta consulta) throws ResourceNotFoundException {
+         if(Objects.nonNull(consulta.getPaciente()) && Objects.nonNull(consulta.getDentista())
+         ){
+             return ResponseEntity.ok(consultaService.salvar(consulta));
          }else {
-             response = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+             throw new ResourceNotFoundException("Erro ao se cadastrar");
          }
-         return response;
      }
-
+    @Operation(summary = "Procurar pelo nome da paciente pra consulta")
+    @GetMapping("/nome/{nome}")
+    public ResponseEntity <ConsultaResponse>buscarPorNome(@PathVariable String nome ) throws ResourceNotFoundException {
+        if (Objects.nonNull(consultaService.buscarPorNome(nome))){
+            return ResponseEntity.ok(consultaService.buscarPorNome(nome));
+        }else {
+            throw new ResourceNotFoundException("Erro ao buscar Por nome Consulta");
+        }
+    }
+    @Operation(summary = "Listar todas as consultas")
      @GetMapping
-    public ResponseEntity<List<Consulta>>buscarTodos(){
-         return ResponseEntity.ok(consultaService.buscarTodos());
+    public ResponseEntity<List<ConsultaResponse>>buscarTodos() throws ResourceNotFoundException {
+         List<ConsultaResponse> dentistaResponses = consultaService.buscarTodos();
+         if (!dentistaResponses.isEmpty()) {
+             return ResponseEntity.ok(dentistaResponses);
+         } else {
+             throw new ResourceNotFoundException("Erro ao gerar a lista");
+         }
      }
-
-
+    @Operation(summary = "Atualizar dados da consulta")
      @PutMapping
-      public  ResponseEntity<Consulta> atualizar(@RequestBody Consulta consulta){
-         ResponseEntity<Consulta> response;
-         if(consultaService.buscarPorId(consulta.getId()).isPresent()){
-             response = ResponseEntity.ok(consultaService.atualizar(consulta));
+      public  ResponseEntity<ConsultaResponse> atualizar(@RequestBody Consulta consulta) throws ResourceNotFoundException {
+        if(Objects.nonNull(consultaService.buscarPorId(consulta.getId()))){
+             return ResponseEntity.ok(consultaService.atualizar(consulta));
          }else {
-             response = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+             throw new ResourceNotFoundException("Erro ao gerar a lista");
          }
-         return response;
-     }
-
+    }
+    @Operation(summary = "Deletar  pelo id a consulta")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> excluir(@PathVariable Integer id){
-         ResponseEntity<String> response;
-         if (consultaService.buscarPorId(id).isPresent()){
+    public ResponseEntity<String> excluir(@PathVariable Integer id) throws ResourceNotFoundException {
+         if (Objects.nonNull(consultaService.buscarPorId(id))){
              consultaService.excluir(id);
-             response = ResponseEntity.status(HttpStatus.NO_CONTENT).body("Consulta apagada");
+             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Consulta apagada");
          }else {
-             response = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+             throw new ResourceNotFoundException("Erro ao gerar a lista");
          }
-         return response;
     }
 
 

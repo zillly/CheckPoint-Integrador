@@ -1,10 +1,8 @@
 package com.checkpoint.clinica.model;
 
+import com.checkpoint.clinica.controller.dto.EnderecoResponse;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -12,7 +10,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "tb_endereco")
-public class Endereco {
+@Builder
+public class Endereco  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,9 +20,6 @@ public class Endereco {
     private int numero;
     private String cidade;
     private String estado;
-    @OneToOne(fetch = FetchType.EAGER , cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "paciente_id")
-    private Paciente paciente;
 
 
 

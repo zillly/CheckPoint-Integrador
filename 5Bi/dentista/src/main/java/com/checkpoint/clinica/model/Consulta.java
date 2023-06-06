@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -13,17 +14,17 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tb_consulta")
+//@Table(name = "tb_consulta")
 public class Consulta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @OneToOne(mappedBy = "consulta", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Paciente paciente;
-    @OneToOne(mappedBy ="consulta", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Dentista dentista;
-    private Date data;
+    private LocalDate data = LocalDate.now();
 
 
 }

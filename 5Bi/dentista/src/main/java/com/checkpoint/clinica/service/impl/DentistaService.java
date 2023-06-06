@@ -1,20 +1,24 @@
 package com.checkpoint.clinica.service.impl;
 
+import com.checkpoint.clinica.controller.dto.DentistaResponse;
 import com.checkpoint.clinica.model.Dentista;
 import com.checkpoint.clinica.repository.IRepositoryDentista;
-import com.checkpoint.clinica.service.IService;
+import com.checkpoint.clinica.service.IDentistaService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 
-public class DentistaService implements IService<Dentista> {
+public class DentistaService implements IDentistaService {
 
     private IRepositoryDentista repository;
+
+    ObjectMapper mapper = new ObjectMapper();
     final static Logger log = Logger.getLogger(DentistaService.class);
 
     @Autowired
@@ -23,37 +27,56 @@ public class DentistaService implements IService<Dentista> {
     }
 
     @Override
-    public Dentista salvar(Dentista dentista) {
+    public DentistaResponse salvar(Dentista dentista) {
         log.debug("Registrando novo dentista: " + dentista.toString());
-        return repository.save(dentista);
+        ObjectMapper mapper = new ObjectMapper();
+        Dentista salvo = repository.save(dentista);
+        DentistaResponse dentistaResponse = mapper.convertValue(salvo , DentistaResponse.class);
+        return dentistaResponse;
     }
 
 
     @Override
-    public List<Dentista> buscarTodos() {
-        return repository.findAll();
+    public List<DentistaResponse> buscarTodos() {
+        log.debug("Buscando Todos");
+        List<Dentista> dentistas = repository.findAll();
+        List<DentistaResponse> response = new ArrayList<>();
+        for (Dentista dentista : dentistas){
+            response.add(mapper.convertValue(dentista, DentistaResponse.class));
+        }
+        return response;
     }
 
     @Override
     public void excluir(int id) {
+        log.debug("Deletetando");
         repository.deleteById(id);
 
     }
 
     @Override
-    public Optional<Dentista> buscarPorId(int id) {
-        return repository.findById(id);
+    public DentistaResponse buscarPorId(int id) {
+        log.debug("Buscando Por ID");
+       Dentista dentista = repository.findDentistaById(id);
+        DentistaResponse dentistaResponse = mapper.convertValue(dentista , DentistaResponse.class);
+        return dentistaResponse;
+
     }
 
     @Override
-    public Dentista atualizar(Dentista dentista) {
+    public DentistaResponse atualizar(Dentista dentista) {
         log.debug("Atualizando um paciente: " + dentista.toString());
-        return repository.save(dentista);
+        Dentista salvo = repository.save(dentista);
+        DentistaResponse dentistaResponse = mapper.convertValue(salvo , DentistaResponse.class);
+        return dentistaResponse;
     }
 
     @Override
-    public Optional<Dentista> buscarPorNome(String nome) {
-        return repository.findDentistaByNomeContainingIgnoreCase(nome);
+    public DentistaResponse buscarPorNome(String nome) {
+        log.debug("Buscando Por Nome");
+       Dentista buscar = repository.findDentistaByNomeContainingIgnoreCase(nome);
+        DentistaResponse dentistaResponse = mapper.convertValue(buscar , DentistaResponse.class);
+        return dentistaResponse;
     }
 
 
